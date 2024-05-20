@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firestore CRUD</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Firestore CRUD Operations</h2>
+
+        <h3>Add Document</h3>
+        <form id="add-form">
+            <input type="text" id="add-name" placeholder="Name" required>
+            <input type="number" id="add-age" placeholder="Age" required>
+            <button type="submit">Add</button>
+        </form>
+
+        <h3>Update Document</h3>
+        <form id="update-form">
+            <input type="text" id="update-id" placeholder="Document ID" required>
+            <input type="text" id="update-name" placeholder="New Name">
+            <input type="number" id="update-age" placeholder="New Age">
+            <button type="submit">Update</button>
+        </form>
+
+        <h3>Delete Document</h3>
+        <form id="delete-form">
+            <input type="text" id="delete-id" placeholder="Document ID" required>
+            <button type="submit">Delete</button>
+        </form>
+
+        <h3>Fetch Documents</h3>
+        <button id="fetch-button">Fetch All Documents</button>
+        <div id="output"></div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJKliJWJ0yT_EAzIHV6iX2JILYgjm6n8A",
+            authDomain: "cloud-lab-f62c5.firebaseapp.com",
+            projectId: "cloud-lab-f62c5",
+            storageBucket: "cloud-lab-f62c5.appspot.com",
+            messagingSenderId: "657134556275",
+            appId: "1:657134556275:web:c32e7868a6fcdbe8250606",
+            measurementId: "G-F1SYXWTCNE"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Add Document
+        document.getElementById('add-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const name = document.getElementById('add-name').value;
+            const age = document.getElementById('add-age').value;
+
+            db.collection('users').add({
+                name: name,
+                age: age
+            })
+            .then(() => {
+                alert('Document successfully added!');
+                document.getElementById('add-form').reset();
+            })
+            .catch((error) => {
+                alert('Error adding document: ' + error.message);
+            });
+        });
+
+        // Update Document
+        document.getElementById('update-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const id = document.getElementById('update-id').value;
+            const newName = document.getElementById('update-name').value;
+            const newAge = document.getElementById('update-age').value;
+
+            const updatedData = {};
+            if (newName) updatedData.name = newName;
+            if (newAge) updatedData.age = newAge;
+
+            db.collection('users').doc(id).update(updatedData)
+            .then(() => {
+                alert('Document successfully updated!');
+                document.getElementById('update-form').reset();
+            })
+            .catch((error) => {
+                alert('Error updating document: ' + error.message);
+            });
+        });
+
+        // Delete Document
+        document.getElementById('delete-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const id = document.getElementById('delete-id').value;
+
+            db.collection('users').doc(id).delete()
+            .then(() => {
+                alert('Document successfully deleted!');
+                document.getElementById('delete-form').reset();
+            })
+            .catch((error) => {
+                alert('Error deleting document: ' + error.message);
+            });
+        });
+
+        // Fetch All Documents
+        document.getElementById('fetch-button').addEventListener('click', function() {
+            db.collection('users').get()
+            .then((querySnapshot) => {
+                const outputDiv = document.getElementById('output');
+                outputDiv.innerHTML = '';
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    outputDiv.innerHTML += `<p>${doc.id} - Name: ${data.name}, Age: ${data.age}</p>`;
+                });
+            })
+            .catch((error) => {
+                alert('Error fetching documents: ' + error.message);
+            });
+        });
+    </script>
+</body>
+</html>

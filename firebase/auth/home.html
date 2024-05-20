@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome</h2>
+        <p>You are logged in!</p>
+        <button id="logout-button">Logout</button>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJKliJWJ0yT_EAzIHV6iX2JILYgjm6n8A",
+            authDomain: "cloud-lab-f62c5.firebaseapp.com",
+            projectId: "cloud-lab-f62c5",
+            storageBucket: "cloud-lab-f62c5.appspot.com",
+            messagingSenderId: "657134556275",
+            appId: "1:657134556275:web:c32e7868a6fcdbe8250606",
+            measurementId: "G-F1SYXWTCNE"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        document.getElementById('logout-button').addEventListener('click', function() {
+            firebase.auth().signOut().then(() => {
+                window.location.href = 'index.html';
+            }).catch((error) => {
+                alert(error.message);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        form {
+            margin-bottom: 10px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 5px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        li:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <h1>CRUD App</h1>
+
+    <form id="itemForm">
+        <input type="hidden" id="itemId"> <!-- Hidden field for item ID -->
+        <input type="text" id="name" placeholder="Name" required>
+        <input type="text" id="description" placeholder="Description" required>
+        <button type="submit">Add Item</button>
+    </form>
+
+    <ul id="itemList"></ul>
+
+    <script>
+        const form = document.getElementById('itemForm');
+        const itemList = document.getElementById('itemList');
+
+        async function fetchItems() {
+            const response = await fetch('/items');
+            const items = await response.json();
+            itemList.innerHTML = ''; // Clear previous items
+            items.forEach(item => {
+                const itemElement = document.createElement('li');
+                itemElement.innerHTML = `
+                    <strong>${item.name}</strong>: ${item.description}
+                    <button onclick="editItem('${item._id}', '${item.name}', '${item.description}')">Edit</button>
+                    <button onclick="deleteItem('${item._id}')">Delete</button>
+                `;
+                itemList.appendChild(itemElement);
+            });
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const description = document.getElementById('description').value;
+            const itemId = document.getElementById('itemId').value;
+
+            let url = '/items';
+            let method = 'POST';
+            if (itemId) {
+                url += `/${itemId}`;
+                method = 'PUT';
+            }
+
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, description }),
+            });
+
+            if (response.ok) {
+                await fetchItems();
+                form.reset();
+                document.getElementById('itemId').value = ''; // Reset hidden field
+            }
+        });
+
+        async function deleteItem(id) {
+            const response = await fetch(`/items/${id}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                await fetchItems();
+            }
+        }
+
+        function editItem(id, name, description) {
+            document.getElementById('name').value = name;
+            document.getElementById('description').value = description;
+            document.getElementById('itemId').value = id; // Set item ID to hidden field
+
+            // Change form button text to 'Update Item'
+            form.querySelector('button[type="submit"]').textContent = 'Update Item';
+
+            // Scroll to top of form for better UX
+            form.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        fetchItems();
+    </script>
+</body>
+</html>
